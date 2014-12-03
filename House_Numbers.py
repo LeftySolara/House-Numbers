@@ -1,8 +1,6 @@
 # To do:
-#   - output multiple winners in case of tie
 #   - write method to play a specific number of rounds
 #   - linke to text file containing rules
-#   - write more unit tests for weird input
 
 from die import Die
 
@@ -39,39 +37,46 @@ class HouseNumbers(object):
         for player in self.players:
             print(player)
 
-    def print_round(self, winner):
+    def print_round(self, winners):
         """Displays summary of the given round"""
         print("Round {}:".format(self.round))
         for player in self.players:
             print("{}: {}".format(player.name, player.scores[self.round-1]))
 
-        print("\nWinner: {}".format(winner.name))
+        for player in winners:
+            print("Winner: {}".format(player))
 
     def play_round(self):
-        """Simulates one round of House Numbers"""
-        winner = self.players[0]
+        """Simulates one round of House Numbers
+
+        Each player rolls a die three times. On each roll, the player chooses
+        what digit of their score the roll will represent (ones, tens, hundreds).
+        """
+
+        winners = []
+        round_scores = {}
 
         for player in self.players:
             print("It's {}'s turn!".format(player.name))
             rolls = ['0','0','0']
             score = "".join(rolls)
             for i in range(3):
-                print("Current score: {}".format(score))
+                print("\nCurrent score: {}".format(score))
                 print("rolling...")
                 roll = self.die.roll()
                 print("You rolled a {}!".format(roll))
                 choice = ""
-                valid = False
+                valid_choice = False
 
-                while not valid:
+                while not valid_choice:
                     if not choice.isdigit():
                         pass
                     elif choice.isdigit() and int(choice) not in range(1,4):
                         print("Invalid position. Try again.")
                     elif int(choice) in range(1,4) and rolls[int(choice)-1] != '0':
-                        print("Position already used. Try again")
+                        print("Position already used. Try again.")
                     elif int(choice) in range(1,4) and rolls[int(choice)-1] == '0':
-                        valid = True
+                        valid_choice = True
                         break
                     choice = input("Put roll in what position? ")
  
@@ -85,11 +90,13 @@ class HouseNumbers(object):
                 score = "".join(str(i) for i in rolls)
 
             player.scores.append(int(score))
-            if int(score) > winner.last_score():
-                winner = player
+            round_scores[player.name] = int(score)
         
             print("{} : {}".format(player, score))
             print()
         
-        winner.wins += 1
-        self.print_round(winner)
+        high_score = max(round_scores.values())
+        for name in round_scores:
+            if round_scores[name] == high_score:
+                winners.append(name)
+        self.print_round(winners)
