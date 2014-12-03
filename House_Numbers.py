@@ -1,7 +1,3 @@
-# To do:
-#   - write method to play a specific number of rounds
-#   - linke to text file containing rules
-
 from die import Die
 
 class Player(object):
@@ -23,6 +19,8 @@ class Player(object):
     def get_wins(self):
         return self.wins
 
+    def add_win(self):
+        self.wins += 1
 
 class HouseNumbers(object):
     """Represents a game of House Numbers. Keeps track of players,
@@ -99,4 +97,18 @@ class HouseNumbers(object):
         for name in round_scores:
             if round_scores[name] == high_score:
                 winners.append(name)
+
+        for player in self.players:
+            if player.name in winners:
+                player.add_win()
         self.print_round(winners)
+
+    def summary(self):
+        """Displays stats of the game"""
+        print("Total scores:")
+        for player in self.players:
+            print("{}: {}".format(player.name, player.total_score()))
+
+        print("\nWins:")
+        for player in self.players:
+            print("{}: {}".format(player.name, player.get_wins()))
